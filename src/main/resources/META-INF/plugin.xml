@@ -5,16 +5,15 @@
 
     <!-- Public plugin name should be written in Title Case.
      Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Git-profiles</name>
+    <name>Git Profiles</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor url="https://github.com/a-krasilnikov/Git-Profiles">Aleksandr K</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
+        Easily manage your git profiles in every single project
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -29,5 +28,5 @@
         <toolWindow id="MyToolWindow" factoryClass="git.more.profiles.MyToolWindowFactory"
                     icon="AllIcons.Toolwindows.ToolWindowPalette"/>
     </extensions>
-    
+
 </idea-plugin>
