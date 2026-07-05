@@ -2,3 +2,9 @@
 .idea
 .intellijPlatform
 build
+
+# Local MCP server config (personal dev tooling, instance-specific)
+.mcp.json
+
+# Per-user Claude Code settings (keep shared .claude/settings.json tracked)
+.claude/settings.local.json
