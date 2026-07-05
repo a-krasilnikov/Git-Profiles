@@ -14,8 +14,9 @@ dependencies {
     intellijPlatform {
         intellijIdea("2025.3.5")
         testFramework(TestFrameworkType.Platform)
+        testFramework(TestFrameworkType.Plugin.VCS)
 
-        // Add plugin dependencies for compilation here, for example:
-        // bundledPlugin("com.intellij.java")
+        // Bundled Git integration: repository detection + running `git config`.
+        bundledPlugin("Git4Idea")
     }
 }

@@ -13,20 +13,25 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Easily manage your git profiles in every single project
+        Manage git identity profiles (<code>user.name</code> + <code>user.email</code>).
+        Store profiles once, then apply any of them as the global git identity or assign one
+        per git repository in every project.
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
 
-    <resource-bundle>messages.MyMessageBundle</resource-bundle>
+    <resource-bundle>messages.GitProfilesBundle</resource-bundle>
 
-    <!-- Extensions defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow" factoryClass="git.more.profiles.MyToolWindowFactory"
-                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
-    </extensions>
-
+    <actions>
+        <action id="GitProfiles.Open"
+                class="git.more.profiles.actions.OpenGitProfilesAction"
+                icon="AllIcons.General.User">
+            <add-to-group group-id="Git.MainMenu" anchor="last"/>
+            <!-- Commit tool window toolbar, right after the message-history icon. -->
+            <add-to-group group-id="ChangesView.CommitToolbar" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
