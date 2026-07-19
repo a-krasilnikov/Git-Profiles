@@ -1,6 +1,7 @@
 .gradle
 .idea
 .intellijPlatform
+.kotlin
 build
 
 # Local MCP server config (personal dev tooling, instance-specific)
