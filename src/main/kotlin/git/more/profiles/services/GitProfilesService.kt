@@ -1,12 +1,7 @@
 package git.more.profiles.services
 
+import com.intellij.openapi.components.*
 import git.more.profiles.GitProfile
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.SettingsCategory
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.components.service
 
 /**
  * The single persistent store of the plugin: the IDE-wide list of git profiles.
@@ -58,4 +53,3 @@ class GitProfilesService : PersistentStateComponent<GitProfilesService.State> {
         fun getInstance(): GitProfilesService = service()
     }
 }
-

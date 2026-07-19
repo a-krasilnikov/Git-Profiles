@@ -1,8 +1,8 @@
 package git.more.profiles.services
 
-import git.more.profiles.GitProfile
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.VcsException
+import git.more.profiles.GitProfile
 import git4idea.commands.Git
 import git4idea.commands.GitCommand
 import git4idea.commands.GitCommandResult
@@ -25,6 +25,14 @@ object GitConfigOperations {
     fun readGlobalProfile(project: Project): GitProfile? =
         readProfile(project, globalDirectory(project), GLOBAL)
 
+    /** The identity git resolves for the repository: its own, or the global one it inherits. */
+    fun readProfile(repository: GitRepository): GitProfile? =
+        readProfile(repository.project, repositoryRoot(repository), scope = null)
+
+    /**
+     * Only the repository's own identity, so callers can tell an explicit override from an
+     * inherited global one — [readProfile] cannot, as git resolves the fallback itself.
+     */
     fun readLocalProfile(repository: GitRepository): GitProfile? =
         readProfile(repository.project, repositoryRoot(repository), LOCAL)
 
@@ -34,7 +42,7 @@ object GitConfigOperations {
     }
 
     @Throws(VcsException::class)
-    fun setLocalProfile(repository: GitRepository, profile: GitProfile) {
+    fun setProfile(repository: GitRepository, profile: GitProfile) {
         setProfile(repository.project, repositoryRoot(repository), LOCAL, profile)
     }
 
@@ -46,7 +54,8 @@ object GitConfigOperations {
         run(repository.project, root, LOCAL, "--unset", USER_EMAIL)
     }
 
-    private fun readProfile(project: Project, directory: File, scope: String): GitProfile? {
+    /** A `null` scope leaves the lookup to git, which applies local over global. */
+    private fun readProfile(project: Project, directory: File, scope: String?): GitProfile? {
         val name = readValue(project, directory, scope, USER_NAME)
         val email = readValue(project, directory, scope, USER_EMAIL)
         if (name == null && email == null) return null
@@ -58,8 +67,9 @@ object GitConfigOperations {
         setValue(project, directory, scope, USER_EMAIL, profile.email)
     }
 
-    private fun readValue(project: Project, directory: File, scope: String, key: String): String? {
-        val result = run(project, directory, scope, "--get", key)
+    private fun readValue(project: Project, directory: File, scope: String?, key: String): String? {
+        val parameters = listOfNotNull(scope, "--get", key).toTypedArray()
+        val result = run(project, directory, *parameters)
         if (!result.success()) return null
 
         return result.output.firstOrNull()?.trim()?.takeIf { it.isNotEmpty() }

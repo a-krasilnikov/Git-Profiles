@@ -8,11 +8,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.testFramework.replaceService
 import com.intellij.vcs.test.VcsPlatformTest
 import git.more.profiles.GitProfile
-import git4idea.commands.Git
-import git4idea.commands.GitCommand
-import git4idea.commands.GitCommandResult
-import git4idea.commands.GitLineHandler
-import git4idea.commands.GitLineHandlerListener
+import git4idea.commands.*
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryImpl
 import git4idea.reset.GitResetMode
@@ -50,13 +46,13 @@ class GitConfigOperationsTest : VcsPlatformTest() {
     fun `test basic scenario - set, read and unset a local profile`() {
         val repo = createRepository("repo")
 
-        assertNull(GitConfigOperations.readLocalProfile(repo))
+        assertNull(GitConfigOperations.readProfile(repo))
 
-        GitConfigOperations.setLocalProfile(repo, WORK)
-        assertEquals(WORK, GitConfigOperations.readLocalProfile(repo))
+        GitConfigOperations.setProfile(repo, WORK)
+        assertEquals(WORK, GitConfigOperations.readProfile(repo))
 
         GitConfigOperations.unsetLocalProfile(repo)
-        assertNull(GitConfigOperations.readLocalProfile(repo))
+        assertNull(GitConfigOperations.readProfile(repo))
     }
 
     fun `test global scenario - set and overwrite the global profile`() {
@@ -69,18 +65,31 @@ class GitConfigOperationsTest : VcsPlatformTest() {
         assertEquals(HOME, GitConfigOperations.readGlobalProfile(project))
     }
 
-    fun `test global scenario - global and local scopes stay independent`() {
+    fun `test local read tells an override apart from an inherited identity`() {
+        val repo = createRepository("repo")
+        GitConfigOperations.setGlobalProfile(project, WORK)
+
+        assertNull("the repository has no identity of its own", GitConfigOperations.readLocalProfile(repo))
+        assertEquals("even though git resolves one for it", WORK, GitConfigOperations.readProfile(repo))
+
+        GitConfigOperations.setProfile(repo, HOME)
+        assertEquals(HOME, GitConfigOperations.readLocalProfile(repo))
+    }
+
+    fun `test global scenario - a local profile overrides the global one`() {
         val repo = createRepository("repo")
 
+        // readProfile reports the identity in effect, so a repository without a local one
+        // inherits the global identity.
         GitConfigOperations.setGlobalProfile(project, WORK)
-        assertNull("global values must not appear in the local scope", GitConfigOperations.readLocalProfile(repo))
+        assertEquals(WORK, GitConfigOperations.readProfile(repo))
 
-        GitConfigOperations.setLocalProfile(repo, HOME)
-        assertEquals(HOME, GitConfigOperations.readLocalProfile(repo))
-        assertEquals(WORK, GitConfigOperations.readGlobalProfile(project))
+        GitConfigOperations.setProfile(repo, HOME)
+        assertEquals("a local profile takes precedence", HOME, GitConfigOperations.readProfile(repo))
+        assertEquals("the global one is left untouched", WORK, GitConfigOperations.readGlobalProfile(project))
 
         GitConfigOperations.unsetLocalProfile(repo)
-        assertNull(GitConfigOperations.readLocalProfile(repo))
+        assertEquals("dropping it falls back to the global identity", WORK, GitConfigOperations.readProfile(repo))
         assertEquals(WORK, GitConfigOperations.readGlobalProfile(project))
     }
 
@@ -88,15 +97,15 @@ class GitConfigOperationsTest : VcsPlatformTest() {
         val first = createRepository("first")
         val second = createRepository("second")
 
-        GitConfigOperations.setLocalProfile(first, WORK)
-        GitConfigOperations.setLocalProfile(second, HOME)
+        GitConfigOperations.setProfile(first, WORK)
+        GitConfigOperations.setProfile(second, HOME)
 
-        assertEquals(WORK, GitConfigOperations.readLocalProfile(first))
-        assertEquals(HOME, GitConfigOperations.readLocalProfile(second))
+        assertEquals(WORK, GitConfigOperations.readProfile(first))
+        assertEquals(HOME, GitConfigOperations.readProfile(second))
 
         GitConfigOperations.unsetLocalProfile(first)
-        assertNull(GitConfigOperations.readLocalProfile(first))
-        assertEquals(HOME, GitConfigOperations.readLocalProfile(second))
+        assertNull(GitConfigOperations.readProfile(first))
+        assertEquals(HOME, GitConfigOperations.readProfile(second))
     }
 
     fun `test repo root different from project root`() {
@@ -104,13 +113,13 @@ class GitConfigOperationsTest : VcsPlatformTest() {
         val repo = createRepository("detached", parent = FileUtil.createTempDirectory("outside-project", null))
         assertFalse("precondition: repo root must differ from project root", repo.root.path == project.basePath)
 
-        GitConfigOperations.setLocalProfile(repo, WORK)
-        assertEquals(WORK, GitConfigOperations.readLocalProfile(repo))
+        GitConfigOperations.setProfile(repo, WORK)
+        assertEquals(WORK, GitConfigOperations.readProfile(repo))
 
         // Global operations use the project base path as working directory and stay separate.
         GitConfigOperations.setGlobalProfile(project, HOME)
         assertEquals(HOME, GitConfigOperations.readGlobalProfile(project))
-        assertEquals(WORK, GitConfigOperations.readLocalProfile(repo))
+        assertEquals(WORK, GitConfigOperations.readProfile(repo))
     }
 
     private fun createRepository(name: String, parent: File = testNioRoot.toFile()): GitRepository {

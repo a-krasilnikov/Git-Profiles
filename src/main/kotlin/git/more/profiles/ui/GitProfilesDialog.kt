@@ -238,7 +238,7 @@ class GitProfilesDialog(
                 }.also { if (it) localProfile = null }
 
                 is RepoChoice.Stored -> runGitOperation(message("progress.applying.config")) {
-                    GitConfigOperations.setLocalProfile(repository, choice.profile)
+                    GitConfigOperations.setProfile(repository, choice.profile)
                 }.also { if (it) localProfile = choice.profile.copy() }
 
                 is RepoChoice.Custom -> true
