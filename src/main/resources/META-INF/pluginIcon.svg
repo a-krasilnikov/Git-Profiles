@@ -1,12 +1,22 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M32.0845 7.94025V4H24.0203V7.9896H16.029V4H7.91553V7.94025H4V36H16.0044V32.0045C16.0058 30.9457 16.4274 29.9308 17.1766 29.1826C17.9258 28.4345 18.9412 28.0143 20 28.0143C21.0588 28.0143 22.0743 28.4345 22.8234 29.1826C23.5726 29.9308 23.9942 30.9457 23.9956 32.0045V36H36V7.94025H32.0845Z"
-          fill="url(#paint0_linear)"/>
+    <!-- Person silhouette (blue) with a circular hole punched out for the git badge. -->
     <defs>
-        <linearGradient id="paint0_linear" x1="2.94192" y1="4.89955" x2="37.7772" y2="39.7345"
-                        gradientUnits="userSpaceOnUse">
-            <stop offset="0.15937" stop-color="#3BEA62"/>
-            <stop offset="0.5404" stop-color="#3C99CC"/>
-            <stop offset="0.93739" stop-color="#6B57FF"/>
-        </linearGradient>
+        <mask id="badgeCut">
+            <rect width="40" height="40" fill="#fff"/>
+            <circle cx="30.5" cy="30.5" r="9" fill="#000"/>
+        </mask>
     </defs>
+    <g fill="#3573F0" mask="url(#badgeCut)">
+        <circle cx="20" cy="12.5" r="7.5"/>
+        <path d="M5 35c0-8.6 6.5-13.2 15-13.2S35 26.4 35 35v1H5z"/>
+    </g>
+    <!-- Git branch badge (warm orange). -->
+    <circle cx="30.5" cy="30.5" r="7.4" fill="#EE6C2D"/>
+    <g fill="#fff">
+        <circle cx="27.9" cy="27.1" r="1.5"/>
+        <circle cx="27.9" cy="33.6" r="1.5"/>
+        <circle cx="33.3" cy="29.9" r="1.5"/>
+    </g>
+    <path d="M27.9 27.1V33.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M27.9 30.5C29.7 30.5 31.6 30.4 33.3 29.9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
 </svg>
