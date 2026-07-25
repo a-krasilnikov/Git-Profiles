@@ -1,0 +1,38 @@
+<idea-plugin>
+    <!--
+      Backend content module. Its dependency on intellij.platform.backend is what tells the
+      platform to load this module only on the host (or in a monolithic IDE), never on the
+      thin client.
+    -->
+    <dependencies>
+        <module name="intellij.platform.backend"/>
+        <module name="intellij.platform.kernel.backend"/>
+        <!-- Ships the broadcast side of remote topics; without it the dialog request never leaves. -->
+        <module name="intellij.platform.rpc.topics.backend"/>
+        <plugin id="Git4Idea"/>
+        <module name="git-profiles.shared"/>
+    </dependencies>
+
+    <resource-bundle>messages.GitProfilesBackendBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <platform.rpc.backend.remoteApiProvider implementation="git.more.profiles.backend.BackendRpcApiProvider"/>
+    </extensions>
+
+    <actions>
+        <!--
+          Menus are rendered from the *backend's* action model, both in a monolithic IDE and on a
+          remote host, so these anchors have to live here rather than in the frontend module — a
+          frontend-registered action simply never shows up in the client's menu bar. The action
+          itself only signals the frontend, which owns the dialog.
+        -->
+        <action id="GitProfiles.OpenFromMenu"
+                class="git.more.profiles.backend.OpenGitProfilesMenuAction"
+                icon="AllIcons.General.User">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <add-to-group group-id="Git.MainMenu" anchor="last"/>
+            <!-- Commit tool window toolbar, right after the message-history icon. -->
+            <add-to-group group-id="ChangesView.CommitToolbar" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

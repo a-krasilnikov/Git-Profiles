@@ -1,0 +1,22 @@
+<idea-plugin>
+    <!--
+      Frontend content module: the UI half, loaded on the JetBrains Client and in a monolithic IDE.
+      It must NOT depend on Git4Idea — the thin client does not load it, and the dependency would
+      disable this whole module (and with it the plugin's UI) there. No git4idea API is used here
+      anyway; all git work goes to the backend over RPC.
+    -->
+    <dependencies>
+        <module name="intellij.platform.frontend"/>
+        <!-- Provides the projectRemoteTopicListener extension point used below. -->
+        <module name="intellij.platform.rpc.topics.frontend"/>
+        <module name="git-profiles.shared"/>
+    </dependencies>
+
+    <resource-bundle>messages.GitProfilesBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Receives "open the dialog" from the host-rendered menus / commit toolbar. -->
+        <platform.rpc.projectRemoteTopicListener
+                implementation="git.more.profiles.frontend.OpenGitProfilesDialogListener"/>
+    </extensions>
+</idea-plugin>

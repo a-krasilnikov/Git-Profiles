@@ -1,0 +1,16 @@
+<idea-plugin>
+    <!-- Needed for the ProjectRemoteTopic declaration in GitProfilesTopics.kt. -->
+    <dependencies>
+        <module name="intellij.platform.rpc.topics"/>
+    </dependencies>
+
+    <!--
+      Shared content module: loaded in both the frontend and the backend. It contributes no
+      extensions of its own — it only exposes the RPC contract and serializable payloads for the
+      frontend and backend modules to depend on.
+
+      NOTE: the module name (this file's base name, "git-profiles.shared") must match the module
+      jar the Gradle plugin produces (lib/modules/git-profiles.shared.jar), which is derived from
+      rootProject.name ("git-profiles") + the subproject name ("shared").
+    -->
+</idea-plugin>

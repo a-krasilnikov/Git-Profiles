@@ -1,22 +1,30 @@
 import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 
-rootProject.name = "git-profiles"
-
 pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        // IntelliJ RPC compiler plugin (fleet.rpc code generation) + matching Kotlin/serialization.
+        maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/")
+    }
     plugins {
-        id("org.jetbrains.kotlin.jvm") version "2.4.0"
+        // The `rpc` plugin is a Kotlin compiler plugin: its version is pinned to the Kotlin version.
+        id("rpc") version "2.3.20-RC2-0.1"
+        id("org.jetbrains.kotlin.jvm") version "2.3.20"
+        id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20"
+        // Provides getChangelog / patchChangelog, used by the GitHub release workflows.
         id("org.jetbrains.changelog") version "2.5.0"
     }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     id("org.jetbrains.intellij.platform.settings") version "2.18.1"
 }
 
+rootProject.name = "git-profiles"
+
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-    // Configure all projects' repositories
     repositories {
         mavenCentral()
 
@@ -26,3 +34,7 @@ dependencyResolutionManagement {
         }
     }
 }
+
+include("shared")
+include("frontend")
+include("backend")

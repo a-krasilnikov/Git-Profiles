@@ -15,23 +15,24 @@
     <description><![CDATA[
         Manage git identity profiles (<code>user.name</code> + <code>user.email</code>).
         Store profiles once, then apply any of them as the global git identity or assign one
-        per git repository in every project.
+        per git repository in every project.<br>
+        Works in remote development / split mode: the UI runs in the frontend (JetBrains Client)
+        while git operations run on the backend (host), communicating over RPC.
         ]]></description>
 
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <!-- Base platform requirement. Git4Idea is required per content module (see the backend module
+         descriptor), not plugin-wide, so the frontend can load without it on the thin client. -->
     <depends>com.intellij.modules.platform</depends>
-    <depends>Git4Idea</depends>
 
-    <resource-bundle>messages.GitProfilesBundle</resource-bundle>
+    <!-- 2025.3 (build 253) is the first release with Split Mode, content modules and the RPC
+         framework this plugin is built on; it cannot load on anything older. -->
+    <idea-version since-build="253"/>
 
-    <actions>
-        <action id="GitProfiles.Open"
-                class="git.more.profiles.actions.OpenGitProfilesAction"
-                icon="AllIcons.General.User">
-            <add-to-group group-id="Git.MainMenu" anchor="last"/>
-            <!-- Commit tool window toolbar, right after the message-history icon. -->
-            <add-to-group group-id="ChangesView.CommitToolbar" anchor="last"/>
-        </action>
-    </actions>
+    <!-- Split into content modules. `shared` loads on both sides; `frontend` and `backend` load
+         only where their platform dependencies (intellij.platform.frontend / .backend) resolve. -->
+    <content>
+        <module name="git-profiles.shared" loading="required"/>
+        <module name="git-profiles.frontend"/>
+        <module name="git-profiles.backend"/>
+    </content>
 </idea-plugin>
