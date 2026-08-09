@@ -16,6 +16,8 @@
         Manage git identity profiles (<code>user.name</code> + <code>user.email</code>).
         Store profiles once, then apply any of them as the global git identity or assign one
         per git repository in every project.
+        Identities already in your git config are picked up automatically, as are those of the
+        GitHub and GitLab accounts you are signed in to.
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
