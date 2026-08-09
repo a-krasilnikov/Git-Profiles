@@ -18,5 +18,9 @@ dependencies {
 
         // Bundled Git integration: repository detection + running `git config`.
         bundledPlugin("Git4Idea")
+
+        // Bundled hosting integrations: authenticated accounts + their API clients.
+        // Optional at runtime — see the optional <depends> entries in plugin.xml.
+        bundledPlugin("org.jetbrains.plugins.github")
     }
 }
