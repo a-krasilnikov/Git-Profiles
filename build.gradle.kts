@@ -22,5 +22,6 @@ dependencies {
         // Bundled hosting integrations: authenticated accounts + their API clients.
         // Optional at runtime — see the optional <depends> entries in plugin.xml.
         bundledPlugin("org.jetbrains.plugins.github")
+        bundledPlugin("org.jetbrains.plugins.gitlab")
     }
 }

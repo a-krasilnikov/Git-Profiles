@@ -25,6 +25,7 @@
     <!-- Optional: without them the plugin works as before, just without that provider's import.
          A hard dependency would disable the whole plugin for anyone who turns one of them off. -->
     <depends optional="true" config-file="git-profiles-github.xml">org.jetbrains.plugins.github</depends>
+    <depends optional="true" config-file="git-profiles-gitlab.xml">org.jetbrains.plugins.gitlab</depends>
 
     <resource-bundle>messages.GitProfilesBundle</resource-bundle>
 
