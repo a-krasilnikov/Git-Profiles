@@ -13,12 +13,15 @@ import com.intellij.platform.ide.progress.ModalTaskOwner
 import com.intellij.platform.ide.progress.TaskCancellation
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
 import git.more.profiles.GitProfilesBundle.message
+import git.more.profiles.providers.GitProfileProvider
 import git.more.profiles.services.GitConfigOperations
 import git.more.profiles.services.GitProfileCache
 import git.more.profiles.services.GitProfilesService
 import git.more.profiles.ui.GitProfilesDialog
 import git4idea.repo.GitRepositoryManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 class OpenGitProfilesAction : DumbAwareAction() {
@@ -45,20 +48,27 @@ class OpenGitProfilesAction : DumbAwareAction() {
             TaskCancellation.nonCancellable(),
         ) {
             withContext(Dispatchers.IO) {
-                val snapshot = GitProfilesDialog.Snapshot(
-                    globalProfile = GitConfigOperations.readGlobalProfile(project),
-                    // The dialog distinguishes an override from an inherited identity, so it
-                    // needs the local scope rather than what git resolves.
-                    repositories = repositories.map { it to GitConfigOperations.readLocalProfile(it) },
-                )
-                val service = GitProfilesService.getInstance()
-                val discovered = listOfNotNull(snapshot.globalProfile) + snapshot.repositories.mapNotNull { it.second }
-                discovered.distinct().forEach { service.add(it) }
+                coroutineScope {
+                    // Hits the network, so let it overlap with the git config reads below.
+                    val providerProfiles = async { GitProfileProvider.discoverAll() }
 
-                withContext(Dispatchers.EDT) {
-                    GitProfilesDialog(project, snapshot).show()
-                    // The listener covers local edits; a new global identity needs this.
-                    GitProfileCache.getInstance(project).clear()
+                    val snapshot = GitProfilesDialog.Snapshot(
+                        globalProfile = GitConfigOperations.readGlobalProfile(project),
+                        // The dialog distinguishes an override from an inherited identity, so it
+                        // needs the local scope rather than what git resolves.
+                        repositories = repositories.map { it to GitConfigOperations.readLocalProfile(it) },
+                    )
+                    val service = GitProfilesService.getInstance()
+                    val discovered =
+                        listOfNotNull(snapshot.globalProfile) + snapshot.repositories.mapNotNull { it.second }
+                    discovered.distinct().forEach { service.add(it) }
+                    providerProfiles.await().forEach { service.add(it.profile, it.origin) }
+
+                    withContext(Dispatchers.EDT) {
+                        GitProfilesDialog(project, snapshot).show()
+                        // The listener covers local edits; a new global identity needs this.
+                        GitProfileCache.getInstance(project).clear()
+                    }
                 }
             }
         }

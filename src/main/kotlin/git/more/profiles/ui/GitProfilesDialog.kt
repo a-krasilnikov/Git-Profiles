@@ -24,15 +24,20 @@ import com.intellij.util.ui.ListTableModel
 import com.intellij.util.ui.UIUtil
 import git.more.profiles.GitProfile
 import git.more.profiles.GitProfilesBundle.message
+import git.more.profiles.providers.GitProfileProvider
 import git.more.profiles.services.GitConfigOperations
 import git.more.profiles.services.GitProfilesService
 import git4idea.repo.GitRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.awt.Component
 import java.awt.event.ItemEvent
 import javax.swing.Action
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JComponent
+import javax.swing.JTable
+import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.table.TableCellRenderer
 
 /**
  * The main dialog: the stored profiles table (with the global marker) and the list of
@@ -65,7 +70,38 @@ class GitProfilesDialog(
         override fun getMaxStringValue(): String = message("dialog.column.global")
     }
 
-    private val tableModel = ListTableModel<GitProfile>(nameColumn, emailColumn, globalColumn).apply {
+    /**
+     * Icon-only cell. The value has to be handed to the superclass as `null`, or the label prints
+     * the provider's `toString()` next to the icon.
+     */
+    private val originRenderer = object : DefaultTableCellRenderer() {
+        override fun getTableCellRendererComponent(
+            table: JTable,
+            value: Any?,
+            selected: Boolean,
+            focused: Boolean,
+            row: Int,
+            column: Int,
+        ): Component {
+            super.getTableCellRendererComponent(table, null, selected, focused, row, column)
+            val provider = value as? GitProfileProvider
+            icon = provider?.icon
+            toolTipText = provider?.let { message("dialog.origin.tooltip", it.displayName) }
+            horizontalAlignment = CENTER
+            return this
+        }
+    }
+
+    /** Badges a profile that came from a hosting provider; the user's own ones stay blank. */
+    private val originColumn = object : ColumnInfo<GitProfile, GitProfileProvider>("") {
+        override fun valueOf(item: GitProfile): GitProfileProvider? =
+            GitProfileProvider.forOrigin(service.originOf(item))
+
+        override fun getRenderer(item: GitProfile): TableCellRenderer = originRenderer
+        override fun getWidth(table: JTable): Int = JBUI.scale(28)
+    }
+
+    private val tableModel = ListTableModel<GitProfile>(originColumn, nameColumn, emailColumn, globalColumn).apply {
         items = service.profiles.toMutableList()
     }
     private val table = TableView(tableModel)

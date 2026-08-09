@@ -25,6 +25,14 @@
 
     <resource-bundle>messages.GitProfilesBundle</resource-bundle>
 
+    <extensionPoints>
+        <!-- One implementation per hosting provider, each registered from the optional config-file
+             of the plugin it integrates with, so none of their classes is loaded when it is absent. -->
+        <extensionPoint name="profileProvider"
+                        interface="git.more.profiles.providers.GitProfileProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <actions>
         <action id="GitProfiles.Open"
                 class="git.more.profiles.actions.OpenGitProfilesAction"
