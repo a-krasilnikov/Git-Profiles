@@ -1,0 +1,6 @@
+<!-- Loaded only when org.jetbrains.plugins.gitlab is installed and enabled. -->
+<idea-plugin>
+    <extensions defaultExtensionNs="git.more.profiles.git-profiles">
+        <profileProvider implementation="git.more.profiles.gitlab.GitLabProfileProvider"/>
+    </extensions>
+</idea-plugin>
